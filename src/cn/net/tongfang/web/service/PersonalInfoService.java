@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Query;
 import org.springframework.beans.BeanUtils;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Propagation;
@@ -20,6 +21,7 @@ import cn.net.tongfang.framework.security.demo.service.TaxempDetail;
 import cn.net.tongfang.framework.security.vo.CodExamlist;
 import cn.net.tongfang.framework.security.vo.Doctors;
 import cn.net.tongfang.framework.security.vo.HealthFile;
+import cn.net.tongfang.framework.security.vo.HealthFileTransition;
 import cn.net.tongfang.framework.security.vo.PersonalInfo;
 import cn.net.tongfang.framework.util.BusiUtils;
 import cn.net.tongfang.framework.util.CommonConvertUtils;
@@ -356,5 +358,38 @@ public class PersonalInfoService extends HibernateDaoSupport {
 			}
 		}
 		return ret;
+	}
+	
+	
+	public String mobileHealthFileAuditing(HealthFileTransition bean)throws Exception{
+		try{
+			HealthFileTransition healthfile = (HealthFileTransition)getHibernateTemplate().find("From HealthFileTransition Where serialno = ?",bean.getSerialno()).get(0);
+			String fileNo = healthfile.getFileNo();
+			String sourceFileNo = fileNo;
+			String optType = "0";
+			if(fileNo != null && !fileNo.equals("")){
+				String districtNumber = healthfile.getCurrentDistrictId();
+				if(!fileNo.substring(0, districtNumber.length()).equals(districtNumber)){
+					fileNo = fileNoGen.getNextFileNo(districtNumber);
+					optType = "1";
+				}
+			}else{
+				fileNo = fileNoGen.getNextFileNo(healthfile.getCurrentDistrictId());
+				optType = "2";
+			}
+			TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
+			String hql = " Exec Proc_Mobile_Healthfile_Auditing ?,?,?,?,? ";
+			Query query = getSession().createSQLQuery(hql);
+			query.setParameter(0, fileNo);
+			query.setParameter(1, sourceFileNo);
+			query.setParameter(2, user.getUsername());
+			query.setParameter(3, healthfile.getSerialno());
+			query.setParameter(4, optType);
+			query.executeUpdate();
+			return "1";
+		}catch(Exception ex){
+			ex.printStackTrace();
+			throw ex;
+		}
 	}
 }

@@ -64,6 +64,7 @@ import cn.net.tongfang.framework.security.vo.HealthFileChildren;
 import cn.net.tongfang.framework.security.vo.HealthFileLoginOff;
 import cn.net.tongfang.framework.security.vo.HealthFileMaternal;
 import cn.net.tongfang.framework.security.vo.HealthFileTransfer;
+import cn.net.tongfang.framework.security.vo.HealthFileTransition;
 import cn.net.tongfang.framework.security.vo.HearScreenReportCard;
 import cn.net.tongfang.framework.security.vo.HomeInfo;
 import cn.net.tongfang.framework.security.vo.HypertensionVisit;
@@ -4442,5 +4443,53 @@ public class ModuleMgr extends HibernateDaoSupport {
 		this.moduleUtil = moduleUtil;
 	}
 	
-	
+	public PagingResult<HealthFileTransition> getMobileHealthFile(HealthFileQry qryCond,
+			PagingParam pp) throws Exception {
+		try {
+			String filterKey = qryCond.getFilterKey();
+			StringBuffer where = new StringBuffer();
+			where.append(" where currentDistrictId like '%" + qryCond.getDistrict() + "%' ");
+			if (StringUtils.hasText(filterKey)) {
+				String filterValue = qryCond.getFilterValue();
+				if(filterKey.equals("a.birthday")){
+					SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd HH:mm:ss.SSS");
+					try {
+						String startDate = null;
+						String endDate = null;
+						if(filterValue.indexOf("-") > 0){
+							String[] valArray = filterValue.split("-");
+							if(valArray.length > 2){
+								throw new Exception("请输入正确的日期范围，如：20120101-20120102或者20120101。");
+							}
+							startDate = valArray[0] + " 00:00:00.000";
+							endDate = valArray[1] + " 23:59:59.999";
+						}else{
+							startDate = filterValue + " 00:00:00.000";
+							endDate = filterValue + " 23:59:59.999";
+						}
+						where.append(" and " + filterKey + " >= '"+(startDate)+"' and " + filterKey + " <= '"+(endDate)+"' ");
+						
+					} catch (ParseException e) {
+						throw new Exception("请输入正确的日期范围，如：20120101-20120102或者20120101。");
+					}				
+				}else{
+					if (StringUtils.hasText(filterValue)) {
+						where.append(" and " + filterKey + " like '%"+filterValue+"%'");
+					}
+				}
+			}
+			String hql = "From HealthFileTransition a " + where;
+			String countHql = "Select Count(*) " + hql;
+			int totalSize = ((Long)(getHibernateTemplate().find(countHql).get(0))).intValue();
+			Query query = getSession().createQuery(hql);
+			if(pp == null) pp = new PagingParam();
+			query.setFirstResult(pp.getStart()).setMaxResults(pp.getLimit());
+			List list = query.list();
+			PagingResult<HealthFileTransition> retVal = new PagingResult<HealthFileTransition>(totalSize,list);
+			return retVal;
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			throw ex;
+		}
+	}
 }

@@ -32,6 +32,8 @@
 		<dwr:convert type="bean"
 			class="java.util.*" />
 		<dwr:convert type="bean"
+			class="java.lang.*" />
+		<dwr:convert type="bean"
 			class="cn.net.tongfang.framework.security.vo.*" />
 		<dwr:convert type="bean"
 			class="cn.net.tongfang.framework.security.vo.SamTaxempcode" />
@@ -52,7 +54,16 @@
 			class="cn.net.tongfang.web.service.map.MapConfigBean" />
 		<dwr:convert type="bean"
 			class="cn.net.tongfang.web.service.map.HealthFileElectronicMapVO" />
-
+		<dwr:convert type="bean"
+			class="cn.net.tongfang.framework.security.bo.*" />
+		<dwr:convert type="bean"
+			class="cn.net.tongfang.framework.util.*" />
+		<dwr:convert type="bean"
+			class="org.hibernate.*" />
+		<dwr:convert type="bean"
+			class="cn.net.tongfang.web.util.*" />
+		<dwr:convert type="bean"
+			class="org.springframework.orm.hibernate3.*" />
 	</dwr:configuration>
 
 	<bean id="DWRHelloService"
