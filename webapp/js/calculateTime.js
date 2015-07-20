@@ -41,6 +41,7 @@
 		return date.getFullYear() + '' + addZero(date.getMonth() + 1) + addZero(date.getDate());
 	}
 	function formatDate(date,sep){
+		if(date == null) return '';
 		if(sep == null || sep == ''){
 			return date.getFullYear() + '年' + addZero(date.getMonth() + 1) + '月' + addZero(date.getDate()) + '日';
 		}

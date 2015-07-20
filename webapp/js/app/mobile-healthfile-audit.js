@@ -35,11 +35,33 @@ app.mobileHealthFileAudit = new Ext.tf.MobileHealthFilePanel({
 	} , {
 		name : 'checkFlag',
 		mapping : 'checkFlag'
+	}, {
+		name : 'checkFlag',
+		mapping : 'checkFlag'
+	}, {
+		name : 'inputDate',
+		mapping : 'inputDate'
+	}, {
+		name : 'scellId',
+		mapping : 'scellId'
+	}, {
+		name : 'oldOrgName',
+		mapping : 'oldOrgName'
+	}, {
+		name : 'curOrgName',
+		mapping : 'curOrgName'
+	}, {
+		name : 'currentDistrictId',
+		mapping : 'currentDistrictId'
 	} ],
 	gridCmConfig : [{
+		"header" : "原建档机构",
+		"dataIndex" : "oldOrgName",
+		"width" : 150
+	},{
 		"header" : "档案编号",
 		"dataIndex" : "fileNo",
-		"width" : 200
+		"width" : 150
 	}, {
 		"header" : "姓名",
 		"dataIndex" : "name"
@@ -52,11 +74,18 @@ app.mobileHealthFileAudit = new Ext.tf.MobileHealthFilePanel({
 		"dataIndex" : "birthday",
 		"renderer" : Ext.util.Format.dateRenderer('Y-m-d')
 	}, {
+		"header" : "联系电话",
+		"dataIndex" : "tel"
+	}, {
 		"header" : "身份证号",
-		"dataIndex" : "idnumber"
+		"dataIndex" : "idnumber",
+		"width" : 150
 	}, {
 		"header" : "关系",
 		"dataIndex" : "relation"
+	}, {
+		"header" : "户编号",
+		"dataIndex" : "scellId"
 	}, {
 		"header" : "住址",
 		"dataIndex" : "address"

@@ -70,6 +70,8 @@ import cn.net.tongfang.framework.security.vo.HomeInfo;
 import cn.net.tongfang.framework.security.vo.HypertensionVisit;
 import cn.net.tongfang.framework.security.vo.InfectionReport;
 import cn.net.tongfang.framework.security.vo.MedicalExam;
+import cn.net.tongfang.framework.security.vo.OldNewOrg;
+import cn.net.tongfang.framework.security.vo.Organization;
 import cn.net.tongfang.framework.security.vo.PersonalInfo;
 import cn.net.tongfang.framework.security.vo.PregnancyRecord;
 import cn.net.tongfang.framework.security.vo.PregnancyRecordChild;
@@ -98,6 +100,7 @@ import cn.net.tongfang.framework.util.service.vo.PagingParam;
 import cn.net.tongfang.framework.util.service.vo.PagingResult;
 import cn.net.tongfang.web.service.bo.ChildBirthRecordBO;
 import cn.net.tongfang.web.service.bo.FirstVisitBeforeBornPrintBO;
+import cn.net.tongfang.web.service.bo.HealthFileTransitionBO;
 
 import com.google.gson.Gson;
 
@@ -4443,9 +4446,10 @@ public class ModuleMgr extends HibernateDaoSupport {
 		this.moduleUtil = moduleUtil;
 	}
 	
-	public PagingResult<HealthFileTransition> getMobileHealthFile(HealthFileQry qryCond,
+	public PagingResult<HealthFileTransitionBO> getMobileHealthFile(HealthFileQry qryCond,
 			PagingParam pp) throws Exception {
 		try {
+			if(pp == null) pp = new PagingParam();
 			String filterKey = qryCond.getFilterKey();
 			StringBuffer where = new StringBuffer();
 			where.append(" where currentDistrictId like '%" + qryCond.getDistrict() + "%' ");
@@ -4478,15 +4482,56 @@ public class ModuleMgr extends HibernateDaoSupport {
 					}
 				}
 			}
-			String hql = "From HealthFileTransition a " + where;
-			String countHql = "Select Count(*) " + hql;
-			int totalSize = ((Long)(getHibernateTemplate().find(countHql).get(0))).intValue();
-			Query query = getSession().createQuery(hql);
-			if(pp == null) pp = new PagingParam();
-			query.setFirstResult(pp.getStart()).setMaxResults(pp.getLimit());
-			List list = query.list();
-			PagingResult<HealthFileTransition> retVal = new PagingResult<HealthFileTransition>(totalSize,list);
-			return retVal;
+			
+			final String fhql = " select a.*,newID() As id,b.Name As oldOrgName,c.Name As curOrgName From HealthFile_Transition a left join Organization b on a.oldOrgId=b.id " + 
+					" left join Organization c on a.currentOrgId = c.id " + where.toString();
+			final String countsql = " select count(*)  From HealthFile_Transition a left join Organization b on a.oldOrgId=b.id " + 
+					" left join Organization c on a.currentOrgId = c.id " + where.toString();
+			List totalSizelist = getHibernateTemplate().executeFind(new HibernateCallback(){
+				@Override
+				public Object doInHibernate(Session arg0) throws HibernateException, SQLException {
+					Query query = arg0.createSQLQuery(countsql);
+					return query.list();
+				}
+			});
+			int totalSize = ((Integer)(totalSizelist.get(0)));
+//			int totalSize = 100;
+			final PagingParam fpp = pp;
+			List<Object[]> list = getHibernateTemplate().executeFind(new HibernateCallback(){
+				@Override
+				public Object doInHibernate(Session arg0) throws HibernateException, SQLException {
+					SQLQuery query = arg0.createSQLQuery(fhql);
+					query.addEntity(HealthFileTransition.class).addEntity(OldNewOrg.class);
+					query.setFirstResult(fpp.getStart()).setMaxResults(fpp.getLimit());
+					return query.list();
+				}
+			});
+			List<HealthFileTransitionBO> files = new ArrayList<HealthFileTransitionBO>();
+			String tmpFileNo = "";
+			if(list.size() > 0){
+				for(Object[] obj : list){
+					HealthFileTransition file = (HealthFileTransition) obj[0];
+					getHibernateTemplate().evict(file);
+					OldNewOrg org = (OldNewOrg) obj[1];
+//					Organization orgCur = (Organization) obj[2];
+					getHibernateTemplate().evict(org);
+//					getHibernateTemplate().evict(orgCur);
+					HealthFileTransitionBO bo = new HealthFileTransitionBO();
+					BeanUtils.copyProperties(file, bo);
+					if(org != null){
+						BeanUtils.copyProperties(org, bo);
+					}					
+//					if(org != null)
+//						bo.setOldOrgName(org.getName());
+//					if(orgCur != null)
+//						bo.setCurOrgName(orgCur.getName());
+					getHibernateTemplate().evict(bo);
+					files.add(bo);
+				}
+			}
+			PagingResult<HealthFileTransitionBO> result = new PagingResult<HealthFileTransitionBO>(
+					totalSize, files);
+			return result;
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			throw ex;
