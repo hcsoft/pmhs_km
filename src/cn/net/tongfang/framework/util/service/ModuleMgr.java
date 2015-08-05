@@ -63,6 +63,7 @@ import cn.net.tongfang.framework.security.vo.HealthFile;
 import cn.net.tongfang.framework.security.vo.HealthFileChildren;
 import cn.net.tongfang.framework.security.vo.HealthFileLoginOff;
 import cn.net.tongfang.framework.security.vo.HealthFileMaternal;
+import cn.net.tongfang.framework.security.vo.HealthFileMember;
 import cn.net.tongfang.framework.security.vo.HealthFileTransfer;
 import cn.net.tongfang.framework.security.vo.HealthFileTransition;
 import cn.net.tongfang.framework.security.vo.HearScreenReportCard;
@@ -101,6 +102,7 @@ import cn.net.tongfang.framework.util.service.vo.PagingResult;
 import cn.net.tongfang.web.service.bo.ChildBirthRecordBO;
 import cn.net.tongfang.web.service.bo.FirstVisitBeforeBornPrintBO;
 import cn.net.tongfang.web.service.bo.HealthFileTransitionBO;
+import cn.net.tongfang.web.service.bo.ListExamBeanBO;
 
 import com.google.gson.Gson;
 
@@ -435,6 +437,52 @@ public class ModuleMgr extends HibernateDaoSupport {
 			}
 		} else {
 			nodes = getOrganization(orgOrDistrict);
+		}
+		return nodes;
+	}
+	
+	public List<ExtJSTreeNode> getXkOrganizationNodes(String auditing) {
+
+		List<ExtJSTreeNode> nodes = new ArrayList<ExtJSTreeNode>();
+
+		log.debug("orgId or DistrictId : " + auditing);
+		
+		
+		List list = getSession().createSQLQuery("Exec pXXkOrg ")
+				.setResultSetMapping("xkOrg").list();
+		for(Object obj : list){
+			Object[] bean = (Object[])obj;
+			String number = "";
+			if(auditing.equals("00")){
+				if(bean[3] != null && Integer.parseInt(bean[3].toString()) != 0){
+					number = "(" +String.valueOf(bean[3]) + ")";
+				}
+			}else if(auditing.equals("01")){
+				if(bean[4] != null && Integer.parseInt(bean[4].toString()) != 0){
+					number = "(" + String.valueOf(bean[4]) + ")";
+				}
+			}else if(auditing.equals("99")){
+				if(bean[5] != null && Integer.parseInt(bean[5].toString()) != 0){
+					number = "(" +String.valueOf(bean[5]) + ")";
+				}
+			}else{
+				Integer tmp = 0;
+				if(bean[3] != null){
+					tmp = tmp + Integer.parseInt(bean[3].toString());
+				}
+				if(bean[4] != null){
+					tmp = tmp + Integer.parseInt(bean[4].toString());
+				}
+				if(bean[5] != null){
+					tmp = tmp + Integer.parseInt(bean[5].toString());
+				}
+				if(tmp != 0){
+					number = "(" + String.valueOf(tmp) + ")";
+				}
+			}
+			ExtJSTreeNode node = new ExtJSTreeNode(bean[1].toString().trim() + number,
+					String.valueOf(bean[0]), true,obj);
+			nodes.add(node);
 		}
 		return nodes;
 	}
@@ -4452,7 +4500,10 @@ public class ModuleMgr extends HibernateDaoSupport {
 			if(pp == null) pp = new PagingParam();
 			String filterKey = qryCond.getFilterKey();
 			StringBuffer where = new StringBuffer();
-			where.append(" where currentDistrictId like '%" + qryCond.getDistrict() + "%' ");
+			where.append(" where a.currentOrgId = '" + qryCond.getDistrict() + "' ");
+			if(!qryCond.getFilterVal01().equals("-1")){
+				where.append(" and a.checkFlag = '" + qryCond.getFilterVal01() + "'");
+			}
 			if (StringUtils.hasText(filterKey)) {
 				String filterValue = qryCond.getFilterValue();
 				if(filterKey.equals("a.birthday")){
@@ -4483,10 +4534,12 @@ public class ModuleMgr extends HibernateDaoSupport {
 				}
 			}
 			
-			final String fhql = " select a.*,newID() As id,b.Name As oldOrgName,c.Name As curOrgName From HealthFile_Transition a left join Organization b on a.oldOrgId=b.id " + 
-					" left join Organization c on a.currentOrgId = c.id " + where.toString();
+			final String fhql = " select a.*,newID() As id,b.Name As oldOrgName,c.Name As curOrgName,d.* From HealthFile_Transition a left join Organization b on a.oldOrgId=b.id " + 
+					" left join Organization c on a.currentOrgId = c.id " + 
+					" Left join HealthFileMember d on a.serialno = d.serialno " + where.toString();
 			final String countsql = " select count(*)  From HealthFile_Transition a left join Organization b on a.oldOrgId=b.id " + 
-					" left join Organization c on a.currentOrgId = c.id " + where.toString();
+					" left join Organization c on a.currentOrgId = c.id " + 
+					" Left join HealthFileMember d on a.serialno = d.serialno " + where.toString();
 			List totalSizelist = getHibernateTemplate().executeFind(new HibernateCallback(){
 				@Override
 				public Object doInHibernate(Session arg0) throws HibernateException, SQLException {
@@ -4501,7 +4554,7 @@ public class ModuleMgr extends HibernateDaoSupport {
 				@Override
 				public Object doInHibernate(Session arg0) throws HibernateException, SQLException {
 					SQLQuery query = arg0.createSQLQuery(fhql);
-					query.addEntity(HealthFileTransition.class).addEntity(OldNewOrg.class);
+					query.addEntity(HealthFileTransition.class).addEntity(OldNewOrg.class).addEntity(HealthFileMember.class);
 					query.setFirstResult(fpp.getStart()).setMaxResults(fpp.getLimit());
 					return query.list();
 				}
@@ -4513,14 +4566,19 @@ public class ModuleMgr extends HibernateDaoSupport {
 					HealthFileTransition file = (HealthFileTransition) obj[0];
 					getHibernateTemplate().evict(file);
 					OldNewOrg org = (OldNewOrg) obj[1];
+					HealthFileMember hm = (HealthFileMember) obj[2];
 //					Organization orgCur = (Organization) obj[2];
 					getHibernateTemplate().evict(org);
+					getHibernateTemplate().evict(hm);
 //					getHibernateTemplate().evict(orgCur);
 					HealthFileTransitionBO bo = new HealthFileTransitionBO();
 					BeanUtils.copyProperties(file, bo);
 					if(org != null){
 						BeanUtils.copyProperties(org, bo);
-					}					
+					}	
+					if(hm != null){
+						BeanUtils.copyProperties(hm, bo);
+					}
 //					if(org != null)
 //						bo.setOldOrgName(org.getName());
 //					if(orgCur != null)
@@ -4537,4 +4595,5 @@ public class ModuleMgr extends HibernateDaoSupport {
 			throw ex;
 		}
 	}
+	
 }

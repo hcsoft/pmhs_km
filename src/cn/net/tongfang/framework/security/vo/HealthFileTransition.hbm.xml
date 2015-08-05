@@ -58,11 +58,23 @@
         <property name="inputDate" type="java.sql.Timestamp">
             <column name="InputDate" length="23" not-null="true" />
         </property>
-        <property name="scellId" type="java.lang.String">
-            <column name="ScellId" not-null="true" />
+        <property name="cellId" type="java.lang.String">
+            <column name="CellID"/>
+        </property>
+         <property name="areaId" type="java.lang.String">
+            <column name="AreaID"/>
+        </property>
+         <property name="unitId" type="java.lang.String">
+            <column name="UnitID"/>
         </property>
         <property name="checkFlag" type="java.lang.String">
             <column name="CheckFlag" />
+        </property>
+         <property name="errorReason" type="java.lang.String">
+            <column name="ErrorReason" />
+        </property>
+         <property name="remark" type="java.lang.String">
+            <column name="Remark" />
         </property>
     </class>
 </hibernate-mapping>

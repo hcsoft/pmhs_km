@@ -1,7 +1,7 @@
 Ext.ns("app");
 
 app.mobileHealthFileAudit = new Ext.tf.MobileHealthFilePanel({
-	treeLoaderFn : UserMenuTreeService.getUserDistrictNodes,
+	treeLoaderFn : UserMenuTreeService.getXkOrganizationNodes,
 	queryUrl : UserMenuTreeService.getMobileHealthFile,
 	title : '移动档案审核',
 	recordId : 'serialno',
@@ -42,8 +42,8 @@ app.mobileHealthFileAudit = new Ext.tf.MobileHealthFilePanel({
 		name : 'inputDate',
 		mapping : 'inputDate'
 	}, {
-		name : 'scellId',
-		mapping : 'scellId'
+		name : 'cellId',
+		mapping : 'cellId'
 	}, {
 		name : 'oldOrgName',
 		mapping : 'oldOrgName'
@@ -53,6 +53,15 @@ app.mobileHealthFileAudit = new Ext.tf.MobileHealthFilePanel({
 	}, {
 		name : 'currentDistrictId',
 		mapping : 'currentDistrictId'
+	}, {
+		name : 'memberCardNumber',
+		mapping : 'memberCardNumber'
+	}, {
+		name : 'referees',
+		mapping : 'referees'
+	}, {
+		name : 'memberLabel',
+		mapping : 'memberLabel'
 	} ],
 	gridCmConfig : [{
 		"header" : "原建档机构",
@@ -85,7 +94,7 @@ app.mobileHealthFileAudit = new Ext.tf.MobileHealthFilePanel({
 		"dataIndex" : "relation"
 	}, {
 		"header" : "户编号",
-		"dataIndex" : "scellId"
+		"dataIndex" : "cellId"
 	}, {
 		"header" : "住址",
 		"dataIndex" : "address"
@@ -101,8 +110,13 @@ app.mobileHealthFileAudit = new Ext.tf.MobileHealthFilePanel({
 		"renderer" : function(v){
 			if(v == '00'){
 				return '未审核';
+			}else if(v == '01'){
+				return '已审核';
+			}else if(v == '99'){
+				return '审核未通过';
+			}else{
+				return '其它';
 			}
-			return '已审核';
 		}
 	}]
 });

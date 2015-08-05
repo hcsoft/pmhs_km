@@ -27,9 +27,12 @@ public class HealthFileTransition implements java.io.Serializable {
 	private String currentDistrictId;
 	private String inputPersonId;
 	private Timestamp inputDate;
-	private String scellId;
+	private String cellId;
 	private String checkFlag;
-
+	private String areaId;
+	private String unitId;
+	private String errorReason;
+	private String remark;
 	// Constructors
 
 	/** default constructor */
@@ -40,7 +43,7 @@ public class HealthFileTransition implements java.io.Serializable {
 	public HealthFileTransition(String serialno, String idnumber,
 			String relation, String name, String sex, String currentOrgId,
 			String currentDistrictId, String inputPersonId,
-			Timestamp inputDate, String scellId) {
+			Timestamp inputDate, String cellId) {
 		this.serialno = serialno;
 		this.idnumber = idnumber;
 		this.relation = relation;
@@ -50,7 +53,7 @@ public class HealthFileTransition implements java.io.Serializable {
 		this.currentDistrictId = currentDistrictId;
 		this.inputPersonId = inputPersonId;
 		this.inputDate = inputDate;
-		this.scellId = scellId;
+		this.cellId = cellId;
 	}
 
 	/** full constructor */
@@ -60,7 +63,8 @@ public class HealthFileTransition implements java.io.Serializable {
 			String residenceAddress, String resideType, String oldOrgId,
 			String oldDistrictId, String currentOrgId,
 			String currentDistrictId, String inputPersonId,
-			Timestamp inputDate, String scellId, String checkFlag) {
+			Timestamp inputDate, String cellId, String checkFlag,String areaId,
+			String unitId,String errorReason,String remark) {
 		this.serialno = serialno;
 		this.fileNo = fileNo;
 		this.idnumber = idnumber;
@@ -78,8 +82,12 @@ public class HealthFileTransition implements java.io.Serializable {
 		this.currentDistrictId = currentDistrictId;
 		this.inputPersonId = inputPersonId;
 		this.inputDate = inputDate;
-		this.scellId = scellId;
+		this.cellId = cellId;
 		this.checkFlag = checkFlag;
+		this.unitId = unitId;
+		this.areaId = areaId;
+		this.errorReason = errorReason;
+		this.remark = remark;
 	}
 
 	// Property accessors
@@ -220,20 +228,52 @@ public class HealthFileTransition implements java.io.Serializable {
 		this.inputDate = inputDate;
 	}
 
-	public String getScellId() {
-		return this.scellId;
-	}
-
-	public void setScellId(String scellId) {
-		this.scellId = scellId;
-	}
-
 	public String getCheckFlag() {
 		return this.checkFlag;
 	}
 
 	public void setCheckFlag(String checkFlag) {
 		this.checkFlag = checkFlag;
+	}
+
+	public String getCellId() {
+		return cellId;
+	}
+
+	public void setCellId(String cellId) {
+		this.cellId = cellId;
+	}
+
+	public String getAreaId() {
+		return areaId;
+	}
+
+	public void setAreaId(String areaId) {
+		this.areaId = areaId;
+	}
+
+	public String getUnitId() {
+		return unitId;
+	}
+
+	public void setUnitId(String unitId) {
+		this.unitId = unitId;
+	}
+
+	public String getErrorReason() {
+		return errorReason;
+	}
+
+	public void setErrorReason(String errorReason) {
+		this.errorReason = errorReason;
+	}
+
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
 	}
 
 }

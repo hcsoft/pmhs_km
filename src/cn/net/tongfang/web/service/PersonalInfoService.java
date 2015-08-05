@@ -12,6 +12,8 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.springframework.beans.BeanUtils;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Propagation;
@@ -28,6 +30,7 @@ import cn.net.tongfang.framework.util.CommonConvertUtils;
 import cn.net.tongfang.framework.util.EncryptionUtils;
 import cn.net.tongfang.framework.util.service.ModuleMgr;
 import cn.net.tongfang.framework.util.service.vo.CatInfo;
+import cn.net.tongfang.framework.util.service.vo.PagingResult;
 import cn.net.tongfang.web.service.bo.PersonalInfoFBO;
 import cn.net.tongfang.web.util.BOHelper;
 import cn.net.tongfang.web.util.FileNoGen;
@@ -391,5 +394,32 @@ public class PersonalInfoService extends HibernateDaoSupport {
 			ex.printStackTrace();
 			throw ex;
 		}
+	}
+	
+	public String mobileHealthFileAuditFail(HealthFileTransition bean){
+		Transaction tran = null;
+		try{
+			Session session = getSession();
+			tran = session.beginTransaction();
+			String updateHql = "Update HealthFileTransition Set errorReason = ?,remark = ?,checkFlag = ? Where serialno = ?";
+			String updateHql1 = "Update HypertensionVisitTransition Set checkFlag = ? Where serialno = ?";
+			Query query = session.createQuery(updateHql);
+			query.setParameter(0, bean.getErrorReason());
+			query.setParameter(1, bean.getRemark());
+			query.setParameter(2, "99");
+			query.setParameter(3, bean.getSerialno());
+			query.executeUpdate();
+			Query q = session.createQuery(updateHql1);
+			q.setParameter(0, "99");
+			q.setParameter(1, bean.getSerialno());
+			q.executeUpdate();
+			tran.commit();
+			return "1";
+		}catch(Exception ex){
+			if(tran != null){
+				tran.rollback();
+			}
+		}
+		return null;
 	}
 }

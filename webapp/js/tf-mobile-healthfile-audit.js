@@ -48,39 +48,140 @@ Ext.tf.MobileHealthFilePanel = Ext.extend(Ext.Panel, {
 		;
 		return selNode;
 	},
+	errorWin : function(data){
+		var errorForm = new Ext.FormPanel({
+			layout : 'absolute',
+			width : 400,
+			height : 300,
+			frame : true,
+			items:[Component.createLabel('healthfileErrorTxt','healthfileErrorTxt',3,3,'未通过原因：'),
+			 new Ext.form.Checkbox({
+				x : 80,
+				y:0,
+				name :'errorReason',
+				inputValue:'姓名',
+				boxLabel: '姓名'
+			 }),  
+			 new Ext.form.Checkbox({
+				x : 140,
+				y:0,
+				name :'errorReason',
+				inputValue:'电话',
+				boxLabel: '电话'
+			 }),
+			 new Ext.form.Checkbox({
+				x : 200,
+				y:0,
+				name :'errorReason',
+				inputValue:'身份证号',
+				boxLabel: '身份证号'
+			 }),
+			 new Ext.form.Checkbox({
+				x : 3,
+				y:30,
+				name :'errorReason',
+				inputValue:'会员卡号',
+				boxLabel: '会员卡号'
+			 }),
+			 new Ext.form.Checkbox({
+				x : 80,
+				y:30,
+				name :'errorReason',
+				inputValue:'住址',
+				boxLabel: '住址'
+			 }),
+	         Component.createLabel('healthfileremarkTxt','healthfileremarkTxt',3,63,'备注：'),
+	         Component.createTextarea('remark','remark',0,90,140,270,'',false),
+	         Component.createButton('healthfileerrorauditingbtn','healthfileerrorauditingbtn',3,245,'c_edit',{
+	        	 click : function() {
+	        		 var errorauditing = function(e) {
+						if (e == "yes") {
+							var formData = errorForm.getForm().getValues(false);
+							formData.serialno = data.id;
+							console.log(formData);
+							var reason = '';
+							$.each(formData.errorReason,function(i,v){
+								reason = reason + v;
+							})
+							formData.errorReason = reason;
+							PersonalInfoService.mobileHealthFileAuditing(formData,function(d){
+								if(d != null && d == '1'){
+									showInfoObj.Infor('档案审核未通过成功！');
+									errorWin.close();
+									Ext.getCmp('mobileHealthFileWin').close();
+									Ext.getCmp('mobileHealthfileAuditin').getStore().reload();
+								}else{
+									showInfoObj.Infor('档案审核未通过失败！');
+								}
+							});
+						}
+					 };
+					 Ext.MessageBox.confirm("提示", "是否确定审核未通过当前建档数据？", errorauditing,this);
+//	        		 this.load(true);
+	        	 }.createDelegate(this)
+	         },'确定'),
+	         Component.createButton('healthfileerrorauditingclosewinbtn','healthfileerrorauditingclosewinbtn',70,245,'c_del',{
+	        	 click : function() {
+	        		 errorWin.close();
+	        	 }.createDelegate(this)
+	         },'关闭窗口')]
+		});
+		var errorWin = new Ext.Window({
+			width : 300,
+			height : 320,
+			modal : true,
+			title : '入户建档审核未通过',
+			items : [{
+				layout : 'absolute',
+				width : 400,
+				height : 300,
+				frame : true,
+				items : [errorForm]
+			}],
+			id:'mobileHealthFileErrorWin'
+		});
+	},
 	MobileHealthfileAuditingForm : function(){
 		var selections = this.grid.getSelections();
 		if(selections.length > 0){
 			var items = [];
-			var height = 320;
+			var height = 410;
 			var data = selections[0];
 			var fileNo = data.data.fileNo;
 			var districtId = data.data.currentDistrictId;
 			console.log(fileNo);
 			console.log(districtId);
+			//审核不通过窗口
+			
 			if(fileNo == null || fileNo == ''){
 				var panel = new Ext.FormPanel({
 					layout : 'absolute',
 					width : 400,
-					height : 300,
+					height : 370,
 					frame : true,
 					items : [Component.createLabel('healthfileTypeTxt','healthfileTypeTxt',3,3,'档案类型：'),
-					         Component.createTextfield('healthfileType','healthfileType',60,0,170,true,'新建档案'),
+					         Component.createTextfield('healthfileType','healthfileType',60,0,190,true,'新建档案'),
 					         Component.createLabel('healthfilenameTxt','healthfilenameTxt',3,33,'姓名：'),
-					         Component.createTextfield('healthfilename','healthfilename',60,30,170,true,data.data.name),
+					         Component.createTextfield('healthfilename','healthfilename',60,30,190,true,data.data.name),
 					         Component.createLabel('healthfilesexTxt','healthfilesexTxt',3,63,'性别：'),
-					         Component.createTextfield('healthfilesex','healthfilesex',60,60,170,true,data.data.sex),
+					         Component.createTextfield('healthfilesex','healthfilesex',60,60,190,true,data.data.sex),
 					         Component.createLabel('healthfilebirthdayTxt','healthfilebirthdayTxt',3,93,'出生日期：'),
-					         Component.createTextfield('healthfilebirthday','healthfilebirthday',60,90,170,true,calculateTimeObj.formatDate(data.data.birthday)),
+					         Component.createTextfield('healthfilebirthday','healthfilebirthday',60,90,190,true,calculateTimeObj.formatDate(data.data.birthday)),
 					         Component.createLabel('healthfileidnumberTxt','healthfileidnumberTxt',3,123,'身份证号：'),
-					         Component.createTextfield('healthfileidnumber','healthfileidnumber',60,120,170,true,data.data.idnumber),
+					         Component.createTextfield('healthfileidnumber','healthfileidnumber',60,120,190,true,data.data.idnumber),
 					         Component.createLabel('healthfileaddressTxt','healthfileaddressTxt',3,153,'现住址：'),
-					         Component.createTextfield('healthfileaddress','healthfileaddress',60,150,170,true,data.data.address),
+					         Component.createTextfield('healthfileaddress','healthfileaddress',60,150,190,true,data.data.address),
 					         Component.createLabel('healthfileorgnameTxt','healthfileorgnameTxt',3,183,'机构名称：'),
-					         Component.createTextfield('healthfileorgname','healthfileorgname',60,180,170,true,data.data.oldOrgName),
+					         Component.createTextfield('healthfileorgname','healthfileorgname',60,180,190,true,data.data.oldOrgName),
 					         Component.createLabel('healthfilebuilddateTxt','healthfilebuilddateTxt',3,213,'建档日期：'),
-					         Component.createTextfield('healthfilebuilddate','healthfilebuilddate',60,210,170,true,calculateTimeObj.formatDate(data.data.inputDate)),
-					         Component.createButton('healthfileauditingbtn','healthfileauditingbtn',3,245,'c_edit',{
+					         Component.createTextfield('healthfilebuilddate','healthfilebuilddate',60,210,190,true,calculateTimeObj.formatDate(data.data.inputDate)),
+					         Component.createLabel('memberCardNumberTxt','memberCardNumberTxt',3,243,'会员卡号：'),
+					         Component.createTextfield('memberCardNumber','memberCardNumber',60,240,190,true,data.data.memberCardNumber),
+					         Component.createLabel('refereesTxt','refereesTxt',3,273,'推荐人：'),
+					         Component.createTextfield('referees','referees',60,270,190,true,data.data.referees),
+					         Component.createLabel('memberLabelTxt','memberLabelTxt',3,303,'会员类型：'),
+					         Component.createTextfield('memberLabel','memberLabel',60,300,190,true,data.data.memberLabel),
+					         Component.createButton('healthfileauditingbtn','healthfileauditingbtn',3,335,'c_edit',{
 					        	 click : function() {
 					        		 var auditing = function(e) {
 										if (e == "yes") {
@@ -99,7 +200,13 @@ Ext.tf.MobileHealthFilePanel = Ext.extend(Ext.Panel, {
 //					        		 this.load(true);
 					        	 }.createDelegate(this)
 					         },'审核'),
-					         Component.createButton('healthfileauditingclosewinbtn','healthfileauditingclosewinbtn',70,245,'c_del',{
+					         Component.createButton('healthfileNoauditingclosewinbtn','healthfileNoauditingclosewinbtn',70,335,'c_del',{
+					        	 click : function() {
+					        		 this.errorWin(data);
+					        		 Ext.getCmp('mobileHealthFileErrorWin').show();
+					        	 }.createDelegate(this)
+					         },'未通过'),
+					         Component.createButton('healthfileauditingclosewinbtn','healthfileauditingclosewinbtn',150,335,'c_del',{
 					        	 click : function() {
 					        		 win.close();
 					        	 }.createDelegate(this)
@@ -109,25 +216,31 @@ Ext.tf.MobileHealthFilePanel = Ext.extend(Ext.Panel, {
 				var panel = new Ext.FormPanel({
 					layout : 'absolute',
 					width : 400,
-					height : 300,
+					height : 390,
 					frame : true,
 					items : [Component.createLabel('healthfileTypeTxt','healthfileTypeTxt',3,3,'档案类型：'),
-					         Component.createTextfield('healthfileType','healthfileType',60,0,170,true,'已建档案'),
+					         Component.createTextfield('healthfileType','healthfileType',60,0,190,true,'已建档案'),
 					         Component.createLabel('healthfilenameTxt','healthfilenameTxt',3,33,'姓名：'),
-					         Component.createTextfield('healthfilename','healthfilename',60,30,170,true,data.data.name),
+					         Component.createTextfield('healthfilename','healthfilename',60,30,190,true,data.data.name),
 					         Component.createLabel('healthfilesexTxt','healthfilesexTxt',3,63,'性别：'),
-					         Component.createTextfield('healthfilesex','healthfilesex',60,60,170,true,data.data.sex),
+					         Component.createTextfield('healthfilesex','healthfilesex',60,60,190,true,data.data.sex),
 					         Component.createLabel('healthfilebirthdayTxt','healthfilebirthdayTxt',3,93,'出生日期：'),
-					         Component.createTextfield('healthfilebirthday','healthfilebirthday',60,90,170,true,calculateTimeObj.formatDate(data.data.birthday)),
+					         Component.createTextfield('healthfilebirthday','healthfilebirthday',60,90,190,true,calculateTimeObj.formatDate(data.data.birthday)),
 					         Component.createLabel('healthfileidnumberTxt','healthfileidnumberTxt',3,123,'身份证号：'),
-					         Component.createTextfield('healthfileidnumber','healthfileidnumber',60,120,170,true,data.data.idnumber),
+					         Component.createTextfield('healthfileidnumber','healthfileidnumber',60,120,190,true,data.data.idnumber),
 					         Component.createLabel('healthfileaddressTxt','healthfileaddressTxt',3,153,'机构名称：'),
-					         Component.createTextfield('healthfileaddress','healthfileaddress',60,150,170,true,data.data.oldOrgName),
+					         Component.createTextfield('healthfileaddress','healthfileaddress',60,150,190,true,data.data.oldOrgName),
 					         Component.createLabel('healthfileorgnameTxt','healthfileorgnameTxt',3,183,'建档日期：'),
-					         Component.createTextfield('healthfileorgname','healthfileorgname',60,180,170,true,calculateTimeObj.formatDate(data.data.inputDate)),
+					         Component.createTextfield('healthfileorgname','healthfileorgname',60,180,190,true,calculateTimeObj.formatDate(data.data.inputDate)),
 					         Component.createLabel('healthfilebuilddateTxt','healthfilebuilddateTxt',3,213,'户编号：'),
-					         Component.createTextfield('healthfilebuilddate','healthfilebuilddate',60,210,170,true,data.data.scellId),
-					         Component.createButton('healthfileauditingbtn','healthfileauditingbtn',3,245,'c_edit',{
+					         Component.createTextfield('healthfilebuilddate','healthfilebuilddate',60,210,190,true,data.data.cellId),
+					         Component.createLabel('memberCardNumberTxt','memberCardNumberTxt',3,243,'会员卡号：'),
+					         Component.createTextfield('memberCardNumber','memberCardNumber',60,240,190,true,data.data.memberCardNumber),
+					         Component.createLabel('refereesTxt','refereesTxt',3,273,'推荐人：'),
+					         Component.createTextfield('referees','referees',60,270,190,true,data.data.referees),
+					         Component.createLabel('memberLabelTxt','memberLabelTxt',3,303,'会员类型：'),
+					         Component.createTextfield('memberLabel','memberLabel',60,300,190,true,data.data.memberLabel),
+					         Component.createButton('healthfileauditingbtn','healthfileauditingbtn',3,335,'c_edit',{
 					        	 click : function() {
 					        		 var auditing = function(e) {
 										if (e == "yes") {
@@ -146,18 +259,24 @@ Ext.tf.MobileHealthFilePanel = Ext.extend(Ext.Panel, {
 //					        		 this.load(true);
 					        	 }.createDelegate(this)
 					         },'审核'),
-					         Component.createButton('healthfileauditingclosewinbtn','healthfileauditingclosewinbtn',70,245,'c_del',{
+					         Component.createButton('healthfileNoauditingclosewinbtn','healthfileNoauditingclosewinbtn',70,335,'c_del',{
+					        	 click : function() {
+					        		 this.errorWin(data);
+					        		 Ext.getCmp('mobileHealthFileErrorWin').show();
+					        	 }.createDelegate(this)
+					         },'未通过'),
+					         Component.createButton('healthfileauditingclosewinbtn','healthfileauditingclosewinbtn',150,335,'c_del',{
 					        	 click : function() {
 					        		 win.close();
 					        	 }.createDelegate(this)
 					         },'关闭窗口')]
 				});
 			}else{
-				height = 360;
+				height = 450;
 				var panel = new Ext.FormPanel({
 					layout : 'absolute',
 					width : 400,
-					height : 320,
+					height : 410,
 					frame : true,
 					items : [Component.createLabel('healthfileTypeTxt','healthfileTypeTxt',3,3,'档案类型：'),
 					         Component.createTextfield('healthfileType','healthfileType',60,0,190,true,'转档'),
@@ -176,8 +295,14 @@ Ext.tf.MobileHealthFilePanel = Ext.extend(Ext.Panel, {
 					         Component.createLabel('healthfileorgnameTxt','healthfileorgnameTxt',3,213,'建档日期：'),
 					         Component.createTextfield('healthfileorgname','healthfileorgname',60,210,190,true,calculateTimeObj.formatDate(data.data.inputDate)),
 					         Component.createLabel('healthfilebuilddateTxt','healthfilebuilddateTxt',3,243,'户编号：'),
-					         Component.createTextfield('healthfilebuilddate','healthfilebuilddate',60,240,190,true,data.data.scellId),
-					         Component.createButton('healthfileauditingbtn','healthfileauditingbtn',3,275,'c_edit',{
+					         Component.createTextfield('healthfilebuilddate','healthfilebuilddate',60,240,190,true,data.data.cellId),
+					         Component.createLabel('memberCardNumberTxt','memberCardNumberTxt',3,273,'会员卡号：'),
+					         Component.createTextfield('memberCardNumber','memberCardNumber',60,270,190,true,data.data.memberCardNumber),
+					         Component.createLabel('refereesTxt','refereesTxt',3,303,'推荐人：'),
+					         Component.createTextfield('referees','referees',60,300,190,true,data.data.referees),
+					         Component.createLabel('memberLabelTxt','memberLabelTxt',3,333,'会员类型：'),
+					         Component.createTextfield('memberLabel','memberLabel',60,330,190,true,data.data.memberLabel),
+					         Component.createButton('healthfileauditingbtn','healthfileauditingbtn',3,365,'c_edit',{
 					        	 click : function() {
 					        		 var auditing = function(e) {
 										if (e == "yes") {
@@ -196,7 +321,13 @@ Ext.tf.MobileHealthFilePanel = Ext.extend(Ext.Panel, {
 //					        		 this.load(true);
 					        	 }.createDelegate(this)
 					         },'审核'),
-					         Component.createButton('healthfileauditingclosewinbtn','healthfileauditingclosewinbtn',70,275,'c_del',{
+					         Component.createButton('healthfileNoauditingclosewinbtn','healthfileNoauditingclosewinbtn',70,365,'c_del',{
+					        	 click : function() {
+					        		 this.errorWin(data);
+					        		 Ext.getCmp('mobileHealthFileErrorWin').show();
+					        	 }.createDelegate(this)
+					         },'未通过'),
+					         Component.createButton('healthfileauditingclosewinbtn','healthfileauditingclosewinbtn',150,365,'c_del',{
 					        	 click : function() {
 					        		 win.close();
 					        	 }.createDelegate(this)
@@ -219,9 +350,35 @@ Ext.tf.MobileHealthFilePanel = Ext.extend(Ext.Panel, {
 		
 	},
 	createActions : function() {
+		var store01 = new Ext.data.SimpleStore({
+			fields : [ 'type', 'display' ],
+			data : [ [ '-1', '全部' ], [ '00', '未审核' ], [ '01', '已审核' ],
+					[ '99', '退回' ] ]
+		});
+		this.combo01 = new Ext.form.ComboBox({
+			store : store01,
+			displayField : 'display',
+			valueField : 'type',
+			typeAhead : true,
+			mode : 'local',
+			triggerAction : 'all',
+			selectOnFocus : true,
+			editable : false,
+			width : 80,
+			value : '00',
+			listeners:{
+				'select': function(combo, record, index){
+					var root = Ext.getCmp('xkOrgTreepanel').getRootNode();
+					root.id = record.data.type;
+					root.reload();
+					
+					Ext.getCmp('mobileHealthfileAuditin').getStore().reload();
+				}
+			}
+		});
 		var searchCondition = [ [ 'a.name', '姓名' ], [ 'a.birthday', '出生日期' ],
 				[ 'a.fileNo', '档案编码' ], [ 'a.idnumber', '身份证号' ] ];
-
+		
 		var store = new Ext.data.SimpleStore({
 			fields : [ 'type', 'display' ],
 			data : searchCondition
@@ -238,6 +395,7 @@ Ext.tf.MobileHealthFilePanel = Ext.extend(Ext.Panel, {
 			width : 100,
 			value : 'a.name'
 		});
+		
 		this.filterField = new Ext.form.TextField({
 			fieldLabel : '',
 			enableKeyEvents : true,
@@ -252,7 +410,7 @@ Ext.tf.MobileHealthFilePanel = Ext.extend(Ext.Panel, {
 		});
 
 		var funcAction;
-		funcAction = [ this.combo, this.filterField, new Ext.Action({
+		funcAction = [ this.combo01,this.combo, this.filterField, new Ext.Action({
 			text : '查询',
 			iconCls : 'c_query',
 			handler : function() {
@@ -285,14 +443,16 @@ Ext.tf.MobileHealthFilePanel = Ext.extend(Ext.Panel, {
 	 */
 	getParams : function() {
 		var selNode = this.getTreeSelNode();
+		
 		if (selNode) {
 			var filterKey = this.combo.getValue();
 			var filterValue = this.filterField.getValue();
-
+			var checkflag = this.combo01.getValue();
 			var cond = {
 				district : selNode.id,
 				filterKey : filterKey,
-				filterValue : filterValue
+				filterValue : filterValue,
+				filterVal01 : checkflag
 			};
 			return cond;
 		}
@@ -365,6 +525,7 @@ Ext.tf.MobileHealthFilePanel = Ext.extend(Ext.Panel, {
 		this.menu = new Ext.tree.TreePanel({
 			// height : 465,
 			layout : 'fit',
+			id : 'xkOrgTreepanel',
 			animate : true,
 			enableDD : false,
 			loader : new Ext.ux.DWRTreeLoader({
@@ -376,7 +537,7 @@ Ext.tf.MobileHealthFilePanel = Ext.extend(Ext.Panel, {
 			root : new Ext.tree.AsyncTreeNode({
 				text : 'root',
 				draggable : false,
-				id : 'org'
+				id : '00'
 			}),
 			rootVisible : false
 		});
@@ -416,7 +577,7 @@ Ext.tf.MobileHealthFilePanel = Ext.extend(Ext.Panel, {
 				region : 'west',
 				layout : 'fit',
 				frame : false,
-				title : '行政区划',
+				title : '组织机构',
 				split : true,
 				collapsible : true,
 				layoutConfig : {
