@@ -1,25 +1,23 @@
 package cn.net.tongfang.framework.util.service;
 
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import cn.net.tongfang.framework.security.SecurityManager;
+import cn.net.tongfang.framework.security.bo.Condition;
+import cn.net.tongfang.framework.security.bo.HealthFileQry;
+import cn.net.tongfang.framework.security.bo.QryCondition;
+import cn.net.tongfang.framework.security.bo.TransferHealthFileQry;
+import cn.net.tongfang.framework.security.demo.service.TaxempDetail;
+import cn.net.tongfang.framework.security.vo.*;
+import cn.net.tongfang.framework.util.BusiUtils;
+import cn.net.tongfang.framework.util.EncryptionUtils;
+import cn.net.tongfang.framework.util.ModuleUtil;
+import cn.net.tongfang.framework.util.service.vo.*;
+import cn.net.tongfang.web.service.bo.ChildBirthRecordBO;
+import cn.net.tongfang.web.service.bo.FirstVisitBeforeBornPrintBO;
+import cn.net.tongfang.web.service.bo.HealthFileTransitionBO;
+import com.google.gson.Gson;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
-import org.hibernate.HibernateException;
-import org.hibernate.Query;
-import org.hibernate.SQLQuery;
-import org.hibernate.Session;
+import org.hibernate.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
@@ -27,84 +25,13 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import cn.net.tongfang.framework.security.SecurityManager;
-import cn.net.tongfang.framework.security.bo.Condition;
-import cn.net.tongfang.framework.security.bo.HealthFileQry;
-import cn.net.tongfang.framework.security.bo.QryCondition;
-import cn.net.tongfang.framework.security.bo.TransferHealthFileQry;
-import cn.net.tongfang.framework.security.demo.service.TaxempDetail;
-import cn.net.tongfang.framework.security.vo.BabyBarrierReg;
-import cn.net.tongfang.framework.security.vo.BabyDeathSurvey;
-import cn.net.tongfang.framework.security.vo.BabyVisit;
-import cn.net.tongfang.framework.security.vo.BasicInformation;
-import cn.net.tongfang.framework.security.vo.BirthCertificate;
-import cn.net.tongfang.framework.security.vo.BloodTrans;
-import cn.net.tongfang.framework.security.vo.ChildBirthRecord;
-import cn.net.tongfang.framework.security.vo.ChildLastMedicalExamRecord;
-import cn.net.tongfang.framework.security.vo.ChildrenDeathSurvey01;
-import cn.net.tongfang.framework.security.vo.ChildrenDeathSurvey02;
-import cn.net.tongfang.framework.security.vo.ChildrenMediExam;
-import cn.net.tongfang.framework.security.vo.ChildrenMediExam3;
-import cn.net.tongfang.framework.security.vo.ChildrenMediExam36;
-import cn.net.tongfang.framework.security.vo.ClinicLogs;
-import cn.net.tongfang.framework.security.vo.CodModuleMap;
-import cn.net.tongfang.framework.security.vo.Consultation;
-import cn.net.tongfang.framework.security.vo.CureBack;
-import cn.net.tongfang.framework.security.vo.CureSwitch;
-import cn.net.tongfang.framework.security.vo.DiabetesVisit;
-import cn.net.tongfang.framework.security.vo.DiseaseAndHearScreenConsent;
-import cn.net.tongfang.framework.security.vo.District;
-import cn.net.tongfang.framework.security.vo.FinishGestation;
-import cn.net.tongfang.framework.security.vo.FirstVistBeforeBorn;
-import cn.net.tongfang.framework.security.vo.FuriousInfo;
-import cn.net.tongfang.framework.security.vo.FuriousVisit;
-import cn.net.tongfang.framework.security.vo.HealthEducat;
-import cn.net.tongfang.framework.security.vo.HealthFile;
-import cn.net.tongfang.framework.security.vo.HealthFileChildren;
-import cn.net.tongfang.framework.security.vo.HealthFileLoginOff;
-import cn.net.tongfang.framework.security.vo.HealthFileMaternal;
-import cn.net.tongfang.framework.security.vo.HealthFileMember;
-import cn.net.tongfang.framework.security.vo.HealthFileTransfer;
-import cn.net.tongfang.framework.security.vo.HealthFileTransition;
-import cn.net.tongfang.framework.security.vo.HearScreenReportCard;
-import cn.net.tongfang.framework.security.vo.HomeInfo;
-import cn.net.tongfang.framework.security.vo.HypertensionVisit;
-import cn.net.tongfang.framework.security.vo.InfectionReport;
-import cn.net.tongfang.framework.security.vo.MedicalExam;
-import cn.net.tongfang.framework.security.vo.OldNewOrg;
-import cn.net.tongfang.framework.security.vo.Organization;
-import cn.net.tongfang.framework.security.vo.PersonalInfo;
-import cn.net.tongfang.framework.security.vo.PregnancyRecord;
-import cn.net.tongfang.framework.security.vo.PregnancyRecordChild;
-import cn.net.tongfang.framework.security.vo.Reception;
-import cn.net.tongfang.framework.security.vo.SamModule;
-import cn.net.tongfang.framework.security.vo.SamModuleCategory;
-import cn.net.tongfang.framework.security.vo.SamTaxempcode;
-import cn.net.tongfang.framework.security.vo.SamTaxorgcode;
-import cn.net.tongfang.framework.security.vo.SickInfo;
-import cn.net.tongfang.framework.security.vo.Stat;
-import cn.net.tongfang.framework.security.vo.Tuberculosis;
-import cn.net.tongfang.framework.security.vo.Vaccination;
-import cn.net.tongfang.framework.security.vo.VaccineImmune;
-import cn.net.tongfang.framework.security.vo.VaccineInfo;
-import cn.net.tongfang.framework.security.vo.VisitAfterBorn;
-import cn.net.tongfang.framework.security.vo.VisitBeforeBorn;
-import cn.net.tongfang.framework.security.vo.WomanLastMedicalExamRecord;
-import cn.net.tongfang.framework.security.vo.WomanPhysicalItems;
-import cn.net.tongfang.framework.util.BusiUtils;
-import cn.net.tongfang.framework.util.EncryptionUtils;
-import cn.net.tongfang.framework.util.ModuleUtil;
-import cn.net.tongfang.framework.util.service.vo.CatInfo;
-import cn.net.tongfang.framework.util.service.vo.ExtJSTreeNode;
-import cn.net.tongfang.framework.util.service.vo.ExtJSTreeNodeDefine;
-import cn.net.tongfang.framework.util.service.vo.PagingParam;
-import cn.net.tongfang.framework.util.service.vo.PagingResult;
-import cn.net.tongfang.web.service.bo.ChildBirthRecordBO;
-import cn.net.tongfang.web.service.bo.FirstVisitBeforeBornPrintBO;
-import cn.net.tongfang.web.service.bo.HealthFileTransitionBO;
-import cn.net.tongfang.web.service.bo.ListExamBeanBO;
-
-import com.google.gson.Gson;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ModuleMgr extends HibernateDaoSupport {
 	ModuleUtil moduleUtil;
@@ -498,7 +425,23 @@ public class ModuleMgr extends HibernateDaoSupport {
 		List<ExtJSTreeNode> nodes = new ArrayList<ExtJSTreeNode>();
 
 		log.debug("orgId or DistrictId : " + orgOrDistrict);
+        TaxempDetail user = SecurityManager.currentOperator();
+        List checklist = getSession().createSQLQuery(new StringBuilder().append("select 1 from xk_user where username='").append(user.getUsername()).append("'").toString()).list();
+        if (checklist.size() > 0) {
+            SQLQuery query = getSession().createSQLQuery("select d.id ,a.name  from District d , Organization a , map_org_wechat b  where a.id = b.orgid and d.id = a.DistrictNumber ");
 
+            query.addScalar("id", Hibernate.LONG);
+            query.addScalar("name", Hibernate.STRING);
+            List list = query.list();
+
+            for (int i=0; i<list.size();i++) {
+                Object[] district = (Object[])list.get(i);
+                ExtJSTreeNode node = new ExtJSTreeNode((String)district[1], String.valueOf(district[0]), true, null);
+
+                nodes.add(node);
+            }
+            return nodes;
+        }
 		if (orgOrDistrict == null || "org".equalsIgnoreCase(orgOrDistrict) || "orgIgnoreDistrict".equalsIgnoreCase(orgOrDistrict)) {
 			List<District> list = null;
 			if("orgIgnoreDistrict".equalsIgnoreCase(orgOrDistrict))
