@@ -19,6 +19,8 @@ import cn.net.tongfang.framework.security.vo.ExamExamcfg;
 import cn.net.tongfang.framework.security.vo.ExamItemcfg;
 import cn.net.tongfang.framework.util.CacheUtil;
 
+import javax.annotation.Resource;
+
 public class CommonExamUtil extends HibernateDaoSupport implements
 		 ApplicationListener, CacheUtil {
 	private static final Logger loger = Logger.getLogger(CommonExamUtil.class);
@@ -26,8 +28,8 @@ public class CommonExamUtil extends HibernateDaoSupport implements
 	private Map<String , Map<String,ExamExamcfg>>  examcfg = new HashMap<String , Map<String,ExamExamcfg>>();
 	private Map<String , String> districtMap = new HashMap();
 	private Map<String , List> districtDetailMap = new HashMap();
-	@Autowired
-	private String districtnumber;
+	@Resource
+    private String districtnumber;
 
 	public void onApplicationEvent(ApplicationEvent event) {
 		if (event instanceof ContextRefreshedEvent) {

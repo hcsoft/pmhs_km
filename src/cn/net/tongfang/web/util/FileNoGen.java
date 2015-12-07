@@ -12,10 +12,12 @@ import org.springframework.transaction.annotation.Transactional;
 import cn.net.tongfang.framework.security.vo.ExamId;
 import cn.net.tongfang.framework.security.vo.HealthFileKey;
 
+import javax.annotation.Resource;
+
 public class FileNoGen extends HibernateDaoSupport{
 	private static final Logger log = Logger.getLogger(FileNoGen.class);
 	
-	@Autowired
+	@Resource
 	private String districtnumber;
 	
 	@Transactional(propagation = Propagation.REQUIRED)

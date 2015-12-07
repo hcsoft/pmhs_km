@@ -49,6 +49,8 @@ import cn.net.tongfang.framework.util.service.vo.PagingResult;
 
 import com.jasson.im.api.APIClient;
 
+import javax.annotation.Resource;
+
 
 public class SmsService extends HibernateDaoSupport {
 	private static final Logger log = Logger.getLogger(SmsService.class);
@@ -59,7 +61,7 @@ public class SmsService extends HibernateDaoSupport {
 	public static final String Send_Status_Sended = "1";
 	public static final String Send_Status_Sending = "2";
 	public static Map<String , Integer> typemap= new HashMap();
-	@Autowired
+	@Resource
 	private String districtnumber;
 	static{
 		typemap.put("y", GregorianCalendar.YEAR);

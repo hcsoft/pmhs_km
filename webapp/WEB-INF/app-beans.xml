@@ -32,7 +32,7 @@
 			<security:filter-chain pattern="/tasksystem/**"
 								   filters="httpSessionContextIntegrationFilter,taskLogoutFilter,taskAuthenticationProcessingFilter,basicProcessingFilter,securityContextHolderAwareRequestFilter,rememberMeProcessingFilter,anonymousProcessingFilter,taskExceptionTranslationFilter,TaskFilterSecurityInterceptor" />
 			<security:filter-chain pattern="/**"
-								   filters="httpSessionContextIntegrationFilter,logoutFilter,authenticationProcessingFilter,basicProcessingFilter,securityContextHolderAwareRequestFilter,rememberMeProcessingFilter,anonymousProcessingFilter,exceptionTranslationFilter,filterInvocationInterceptor" />
+								   filters="httpSessionContextIntegrationFilter,logoutFilter,tokenAuthenticationProcessingFilter,authenticationProcessingFilter,basicProcessingFilter,securityContextHolderAwareRequestFilter,rememberMeProcessingFilter,anonymousProcessingFilter,exceptionTranslationFilter,filterInvocationInterceptor" />
 		</security:filter-chain-map>
 	</bean>
 
@@ -128,6 +128,7 @@
 				<security:intercept-url pattern="/secure/**" access="IS_AUTHENTICATED_REMEMBERED" />
 				<security:intercept-url pattern="/admin/*" access="IS_AUTHENTICATED_REMEMBERED" />
 				<security:intercept-url pattern="/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+				<security:intercept-url pattern="/token" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 			</security:filter-invocation-definition-source>
 		</property>
 	</bean>
@@ -154,6 +155,18 @@
 		<property name="filterProcessesUrl" value="/tasksystem/login"/>
 		<property name="rememberMeServices" ref="rememberMeServices"/>
 	</bean>
+
+    <bean id="tokenAuthenticationProcessingFilter" class="cn.net.tongfang.framework.security.SSOAuthFilter">
+        <property name="securityService" ref="securityService" />
+        <property name="authenticationManager" ref="tokenAuthenticationManager"/>
+        <property name="invalidateSessionOnSuccessfulAuthentication" value="true" />
+        <property name="authenticationFailureUrl" value="/"/>
+        <property name="defaultTargetUrl" value="/admin/"/>
+        <property name="filterProcessesUrl" value="/token"/>
+        <property name="rememberMeServices" ref="rememberMeServices"/>
+        <property name="appcode" ref="appcode"/>
+        <property name="ssourl" ref="ssourl"/>
+    </bean>
 
 	<bean id="taskExceptionTranslationFilter" class="org.springframework.security.ui.ExceptionTranslationFilter">
 		<property name="authenticationEntryPoint">
@@ -230,6 +243,29 @@
 		<property name="passwordEncoder" ref="passwordEncoder"/>
 	</bean>
 
+    <bean id="tokenAuthenticationManager" class="org.springframework.security.providers.ProviderManager">
+        <property name="providers">
+            <list>
+                <ref local="tokenAuthenticationProvider"/>
+                <bean class="org.springframework.security.providers.anonymous.AnonymousAuthenticationProvider">
+                    <property name="key" value="changeThis"/>
+                </bean>
+                <bean class="org.springframework.security.providers.rememberme.RememberMeAuthenticationProvider">
+                    <property name="key" value="changeThis"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="tokenAuthenticationProvider" class="org.springframework.security.providers.dao.DaoAuthenticationProvider">
+        <property name="userDetailsService" ref="myUserDetailsService"/>
+        <property name="hideUserNotFoundExceptions">
+            <value>false</value>
+        </property>
+    </bean>
+
+
+
 	<!-- This bean is optional; it isn't used by any other bean as it only listens and logs -->
 	<bean id="loggerListener" class="org.springframework.security.event.authentication.LoggerListener"/>
 	
@@ -240,4 +276,11 @@
 	<bean id="districtnumber" class="java.lang.String">
 		<constructor-arg value="530100"/>
 	</bean>
+    <bean id="appcode" class="java.lang.String">
+        <constructor-arg value="4f8042fe54a84a959f01636284a2b057"/>
+    </bean>
+    <bean id="ssourl" class="java.lang.String">
+        <constructor-arg value="http://172.16.10.33:7006/api/CheckToken.ashx"/>
+        <!--<constructor-arg value="http://localhost:8889/ssotest.do"/>-->
+    </bean>
 </beans>
