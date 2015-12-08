@@ -2,6 +2,7 @@ package cn.net.tongfang.framework.security;
 
 import cn.net.tongfang.framework.security.bo.OperatorBo;
 import org.apache.cxf.service.invoker.SessionFactory;
+import org.apache.log4j.Logger;
 import org.springframework.orm.hibernate3.LocalSessionFactoryBean;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.security.Authentication;
@@ -23,6 +24,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class SSOAuthFilter extends AbstractProcessingFilter   {
+    private static final Logger log = Logger.getLogger(SSOAuthFilter.class);
     private String tokenParameter = "token";
     protected SecurityService securityService;
     private String appcode;
@@ -59,27 +61,33 @@ public class SSOAuthFilter extends AbstractProcessingFilter   {
             URL getUrl = new URL(getURL);
             HttpURLConnection connection = (HttpURLConnection) getUrl.openConnection();
             connection.connect();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(),"GBK"));
             String lines;
             if ((lines = reader.readLine()) != null) {
+                lines = new String(lines.getBytes("gbk"),"utf8");
                 System.out.println("return======" + lines);
-                if("无效密钥信息".equals(lines.substring(0,6))){
-                    logger.error("单点登录验证失败:"+lines);
-                    throw new ConcurrentLoginException("验证失败!");
+                if("鏃犳晥瀵嗛挜淇℃伅".equals(lines.substring(0,6))){
+                    log.error("鍗曠偣鐧诲綍楠岃瘉澶辫触:"+lines);
+                    throw new ConcurrentLoginException("楠岃瘉澶辫触!");
                 }else {
-                    username = lines.split("_")[0];
-                    System.out.println("username======" + username);
+                    String[] strs = lines.split("_");
+                    if(strs.length<=0){
+                        log.error("鍗曠偣鐧诲綍楠岃瘉澶辫触:杩斿洖缁撴灉鏃犳晥!杩斿洖鍐呭:"+lines);
+                        throw new ConcurrentLoginException("鍗曠偣鐧诲綍楠岃瘉澶辫触:杩斿洖缁撴灉鏃犳晥!");
+                    }else {
+                        username = strs[0];
+                    }
                 }
             }
             reader.close();
             connection.disconnect();
         }catch (IOException ex){
-            logger.error("单点登录验证失败:网络无法访问,无法验证!");
-            throw new ConcurrentLoginException("网络无法访问,无法验证!");
+            log.error("鍗曠偣鐧诲綍楠岃瘉澶辫触:缃戠粶鏃犳硶璁块棶,鏃犳硶楠岃瘉!");
+            throw new ConcurrentLoginException("缃戠粶鏃犳硶璁块棶,鏃犳硶楠岃瘉!");
         }
 
         OperatorBo operatorBo = securityService.getOperatorByUsername(username);
-        String password = operatorBo.getPassword();
+        String password = operatorBo !=null ? operatorBo.getPassword() :"";
         if(username == null) {
             username = "";
         }
