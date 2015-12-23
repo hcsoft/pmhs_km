@@ -1214,8 +1214,8 @@ $(function () {
             medObj = med.buildForm(cfg);
             if (!data) {
                 flag = true;
-                $('.save').remove();
-                $('.cancel').remove();
+//                $('.save').remove();
+//               $('.cancel').remove();
             }
             if (json.extend_children_woman_param != undefined) {
                 $('button.quit').remove();
