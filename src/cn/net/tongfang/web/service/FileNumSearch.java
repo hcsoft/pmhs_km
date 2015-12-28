@@ -2,21 +2,32 @@ package cn.net.tongfang.web.service;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.springframework.beans.BeanUtils;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import cn.net.tongfang.framework.security.demo.service.TaxempDetail;
+import cn.net.tongfang.framework.security.vo.BabyVisit;
+import cn.net.tongfang.framework.security.vo.ChildrenMediExam;
+import cn.net.tongfang.framework.security.vo.ChildrenMediExam36;
+import cn.net.tongfang.framework.security.vo.DiabetesVisit;
+import cn.net.tongfang.framework.security.vo.FirstVistBeforeBorn;
+import cn.net.tongfang.framework.security.vo.FuriousVisit;
+import cn.net.tongfang.framework.security.vo.HealthFile;
 import cn.net.tongfang.framework.security.vo.HealthFileHistory2;
+import cn.net.tongfang.framework.security.vo.HypertensionVisit;
+import cn.net.tongfang.framework.security.vo.MedicalExam;
+import cn.net.tongfang.framework.security.vo.PersonalInfo;
+import cn.net.tongfang.framework.security.vo.VisitAfterBorn;
+import cn.net.tongfang.framework.security.vo.VisitBeforeBorn;
 import cn.net.tongfang.framework.util.EncryptionUtils;
 import cn.net.tongfang.web.service.bo.PagedList;
 import cn.net.tongfang.web.service.bo.PersonalInfoFBO;
@@ -642,4 +653,74 @@ public class FileNumSearch extends HibernateDaoSupport {
 			return true;
 		return false;
 	}
+	public PersonalInfoFBO getHealthFileInfoByWorkId(String type,String id){
+    	if(type.equals("1")){
+    		ChildrenMediExam childrenExam = (ChildrenMediExam)getHibernateTemplate().get(ChildrenMediExam.class, id);
+    		if(childrenExam != null){
+    			return getHealthfileInfo(childrenExam.getFileNo());
+    		}
+    	}else if(type.equals("2")){
+    		ChildrenMediExam36 childrenExam = (ChildrenMediExam36)getHibernateTemplate().get(ChildrenMediExam36.class, id);
+    		if(childrenExam != null){
+    			return getHealthfileInfo(childrenExam.getFileNo());
+    		}
+    	}else if(type.equals("3")){
+    		BabyVisit childrenExam = (BabyVisit)getHibernateTemplate().get(BabyVisit.class, id);
+    		if(childrenExam != null){
+    			return getHealthfileInfo(childrenExam.getFileNo());
+    		}
+    	}else if(type.equals("4")){
+    		FirstVistBeforeBorn womanExam = (FirstVistBeforeBorn)getHibernateTemplate().get(FirstVistBeforeBorn.class, id);
+    		if(womanExam != null){
+    			return getHealthfileInfo(womanExam.getFileNo());
+    		}
+    	}else if(type.equals("5")){
+    		VisitBeforeBorn womanExam = (VisitBeforeBorn)getHibernateTemplate().get(VisitBeforeBorn.class, id);
+    		if(womanExam != null){
+    			return getHealthfileInfo(womanExam.getFileNo());
+    		}
+    	}else if(type.equals("6")){
+    		VisitAfterBorn womanExam = (VisitAfterBorn)getHibernateTemplate().get(VisitAfterBorn.class, id);
+    		if(womanExam != null){
+    			return getHealthfileInfo(womanExam.getFileNo());
+    		}
+    	}else if(type.equals("7")){
+    		HypertensionVisit hypVisit = (HypertensionVisit)getHibernateTemplate().get(HypertensionVisit.class, id);
+    		if(hypVisit != null){
+    			return getHealthfileInfo(hypVisit.getFileNo());
+    		}
+    	}else if(type.equals("8")){
+    		DiabetesVisit t2dmVisit = (DiabetesVisit)getHibernateTemplate().get(DiabetesVisit.class, id);
+    		if(t2dmVisit != null){
+    			return getHealthfileInfo(t2dmVisit.getFileNo());
+    		}
+    	}else if(type.equals("9")){
+    		FuriousVisit furiousVisit = (FuriousVisit)getHibernateTemplate().get(FuriousVisit.class, id);
+    		if(furiousVisit != null){
+    			return getHealthfileInfo(furiousVisit.getFileNo());
+    		}
+    	}else if(type.equals("10")){
+    		MedicalExam medicalExam = (MedicalExam)getHibernateTemplate().get(MedicalExam.class, id);
+    		if(medicalExam != null){
+    			return getHealthfileInfo(medicalExam.getFileNo());
+    		}
+    	}
+    	return null;
+    }
+    private PersonalInfoFBO getHealthfileInfo(String fileNo){
+    	String hql = " From HealthFile a ,PersonalInfo b Where a.fileNo = b.fileNo And a.fileNo = ? ";
+		Query query = getSession().createQuery(hql);
+		query.setParameter(0, fileNo);
+		List list = query.list();
+		if(list.size() > 0){
+			Object[] obj = (Object[])list.get(0);
+			HealthFile file = (HealthFile)obj[0];
+			PersonalInfo person = (PersonalInfo)obj[1];
+			PersonalInfoFBO data = new PersonalInfoFBO();
+			BeanUtils.copyProperties(file, data); // spring beanutils
+			BeanUtils.copyProperties(person, data); // spring beanutils
+			return data;
+		}
+		return new PersonalInfoFBO();
+    }
 }

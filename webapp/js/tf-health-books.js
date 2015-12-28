@@ -683,7 +683,67 @@ Ext.tf.HealthBookRecordsPanel = Ext.extend(Ext.Panel, {
 		funcAction.push(examBtn);
 		if(this.funType == 0){
 			funcAction.push(terminationBirthBtn);
+			var printBtn = new Ext.Button({
+				text: '打印',
+				iconCls: 'c_print',
+				handler : function() {
+					var selections = this.grid.getSelections();
+					if (selections.length > 0) {
+						var record = selections[0].data;
+						PrintHealthFileAndExamClass.PrintVolumeBook(record.id,'4');
+					}else{
+						showInfoObj.Infor('请选择需要打印的孕产妇保健手册！');
+					}
+				}.createDelegate(this)
+				
+			});
+			funcAction.push(printBtn);
+		}else{
+			var printBtn = new Ext.Button({
+				text: '打印',
+				iconCls: 'c_print',
+				menu: new Ext.menu.Menu({
+			        items: [new Ext.Action({
+						text : '1岁以内儿童体检套打',
+						handler : function() {
+							var selections = this.grid.getSelections();
+							if (selections.length > 0) {
+								var record = selections[0].data;
+								PrintHealthFileAndExamClass.PrintVolumeBook(record.id,'1');
+							}else{
+								showInfoObj.Infor('请选择需要打印的儿童保健手册！');
+							}
+						}.createDelegate(this)
+					}),new Ext.Action({
+						text : '1~2岁儿童体检套打',
+						handler : function() {
+							var selections = this.grid.getSelections();
+							if (selections.length > 0) {
+								var record = selections[0].data;
+								PrintHealthFileAndExamClass.PrintVolumeBook(record.id,'2');
+							}else{
+								showInfoObj.Infor('请选择需要打印的儿童保健手册！');
+							}
+						}.createDelegate(this)
+					}),new Ext.Action({
+						text : '3~6岁儿童体检套打',
+						handler : function() {
+							var selections = this.grid.getSelections();
+							if (selections.length > 0) {
+								var record = selections[0].data;
+								PrintHealthFileAndExamClass.PrintVolumeBook(record.id,'3');
+							}else{
+								showInfoObj.Infor('请选择需要打印的儿童保健手册！');
+							}
+						}.createDelegate(this)
+					})]
+				})
+				
+			});
+			funcAction.push(printBtn);
 		}
+		
+		
 		funcAction.push('-');
 		if(this.funType == 0){
 			funcAction.push(this.combo01);
@@ -700,7 +760,7 @@ Ext.tf.HealthBookRecordsPanel = Ext.extend(Ext.Panel, {
 				this.load(true);
 			}.createDelegate(this)
 		}));
-//		funcAction.push(advancedF);
+		funcAction.push(advancedF);
 		return funcAction;
 	},
 

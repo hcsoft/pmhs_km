@@ -66,4 +66,44 @@ public class PrinterService extends HibernateDaoSupport {
 
 		return null;
 	}
+	@SuppressWarnings({ "rawtypes", "deprecation", "unchecked" })
+	public List printerVolumeBook(PrinterBO bean) {
+		Connection conn = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			Session session = getSession();
+			conn = session.connection();
+			ps = conn.prepareStatement("Exec PmhsChildWomanStandardPrint ?,?");
+			ps.setObject(1, bean.getPrintWhere());
+			ps.setObject(2, bean.getPrintType());
+			rs = ps.executeQuery();
+			List list = new ArrayList();
+			while (rs.next()) {
+				ResultSetMetaData md = rs.getMetaData();
+				int num = md.getColumnCount();
+				Map mapOfColValues = new HashMap(num);
+				for (int i = 1; i <= num; i++) {
+					mapOfColValues.put(md.getColumnName(i), rs.getObject(i));
+				}
+				list.add(mapOfColValues);
+			}
+			return list;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try{
+				if(rs != null)
+					rs.close();
+				if(ps != null)
+					ps.close();
+				if(conn != null)
+					conn.close();
+			}catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+
+		return null;
+	}
 }
