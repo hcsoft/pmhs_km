@@ -1253,6 +1253,7 @@ function navigateContent($htmlContent,$templateId,$lastRootCatName,$lastCatName)
 			'<div class="mod fun_mod_08 mod_disable"><img src="../image/menu/60.gif"/><div>出生医学证明分配</div><div class="remarks"></div></div>'+
 			'<div class="mod fun_mod_09 mod_disable"><img src="../image/menu/score.png"/><div>在线考核</div><div class="remarks"></div></div>'+
 			'<div class="mod fun_mod_10 mod_disable"><img src="../image/menu/cache.png"/><div>缓存管理</div><div class="remarks"></div></div>'+
+			'<div class="mod fun_mod_11 mod_disable"><img src="../image/menu/46.gif"/><div>全局参数设置</div><div class="remarks"></div></div>'+
 		'</div>';
 	}else if($templateId == 'fun_business_child_template'){
 		flag = true;
@@ -1381,6 +1382,7 @@ function navigateContent($htmlContent,$templateId,$lastRootCatName,$lastCatName)
 			'<div class="mod health_06 mod_disable"><img src="../image/menu/mxb_02.gif"/><div>2型糖尿病档案</div><div class="remarks"></div></div>'+
 			'<div class="mod health_07 mod_disable"><img src="../image/menu/mxb_03.gif"/><div>重性精神病档案</div><div class="remarks"></div></div>'+
 			'<div class="mod health_08 mod_disable"><img src="../image/menu/mxb_03.gif"/><div>居民健康档案及健康体检记录打印</div><div class="remarks"></div></div>'+
+			'<div class="mod health_09 mod_disable"><img src="../image/menu/transfer_03.gif"/><div>档案注销查询</div><div class="remarks"></div></div>'+
 		'</div>';
 	}else if($templateId == 'fun_sms_template'){
 		flag = true;

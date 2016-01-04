@@ -341,6 +341,12 @@ div.fun_mod_10{
     margin-left: 1015px;
     width: 150px;
 }
+div.fun_mod_11{
+    margin-top: 180px;
+    margin-left: 700px;
+   
+    
+}
 div.div_fun_mod_container {
 	width: 800px;
 	height : 500px;
@@ -677,9 +683,14 @@ div.health_07{
 	width: 150px;
 }
 div.health_08{
-	margin-top: 190px;
+	margin-top: 80px;
 	margin-left: 820px;
 	width: 240px;
+}
+div.health_09{
+	margin-top: 300px;
+	margin-left: 820px;
+	width: 150px;
 }
 div.menu_second_div{
 	cursor: pointer;

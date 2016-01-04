@@ -1212,10 +1212,10 @@ $(function () {
         var id = unescape(json.id);
         MetaProvider.isInputPerson(id, services.tableName, function (data) {
             medObj = med.buildForm(cfg);
-            if (!data) {
+            if (data) {
                 flag = true;
-//                $('.save').remove();
-//               $('.cancel').remove();
+                $('.save').remove();
+                $('.cancel').remove();
             }
             if (json.extend_children_woman_param != undefined) {
                 $('button.quit').remove();

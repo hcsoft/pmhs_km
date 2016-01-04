@@ -16,6 +16,7 @@ import org.springframework.security.userdetails.UsernameNotFoundException;
 import cn.net.tongfang.framework.security.SecurityService;
 import cn.net.tongfang.framework.security.bo.ModuleBo;
 import cn.net.tongfang.framework.security.bo.OperatorBo;
+import cn.net.tongfang.framework.util.PropertiesServices;
 
 
 public class MyUserDetailsServiceImpl implements UserDetailsService {
@@ -65,7 +66,9 @@ public class MyUserDetailsServiceImpl implements UserDetailsService {
 		GrantedAuthority[] combinedAuthorities = grantList.toArray(new GrantedAuthority[grantList.size()]);
 		//edit by Daved 2009-03-17
 //		return new User(username, password,enabled,true, true, true, combinedAuthorities);
-		return new TaxempDetail(operatorBo.getId(), operatorBo.getUsername(), operatorBo.getPassword(), operatorBo.getDistrict(), operatorBo.getOrg(), operatorBo.getOrgId(), operatorBo.getDistrictId(), enabled, combinedAuthorities,operatorBo.getIsLookAuthority());
+		PropertiesServices prop = new PropertiesServices();
+		String modifyAuthority = prop.readProperties().getProperty("modify_authority").toString();
+		return new TaxempDetail(operatorBo.getId(), operatorBo.getUsername(), operatorBo.getPassword(), operatorBo.getDistrict(), operatorBo.getOrg(), operatorBo.getOrgId(), operatorBo.getDistrictId(), enabled, combinedAuthorities,operatorBo.getIsLookAuthority(),modifyAuthority);
 	}
 
 	public void setSecurityService(SecurityService securityService) {

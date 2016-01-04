@@ -75,16 +75,42 @@ public class MetaServiceImpl extends HibernateDaoSupport implements MetaService 
 //		}
 	}
 	
+	@SuppressWarnings("rawtypes")
 	public boolean isInputPerson(String id,String tableName){
 		TaxempDetail user = cn.net.tongfang.framework.security.SecurityManager.currentOperator();
-		String username = "@sdfy$";
+//		String username = "@sdfy$";
 		if(user != null){
-			username = user.getUsername();
+			if(user.getModifyAuthority().equals("1")){
+				return false;
+			}else{
+				List list = getHibernateTemplate().find("Select fileNo From " + tableName + " Where id = ? ",id);
+				if(list.size() > 0){
+					String fileNo = list.get(0).toString();
+					if(user.getModifyAuthority().equals("2")){
+						String disId = user.getDistrictId();
+						if(disId.equals(fileNo.substring(0, disId.length()))){
+							return true;
+						}else{
+							return false;
+						}
+					}else if(user.getModifyAuthority().equals("3")){
+						String disId = user.getDistrictId();
+						if(!disId.equals(fileNo.substring(0, disId.length()))){
+							return true;
+						}else{
+							return false;
+						}
+					}
+				}
+				
+			} 
+//			username = user.getUsername();
 		}
-		String hql = "From " + tableName + " Where id = ? And inputPersonId In(?,'admin')";
-		List list = getHibernateTemplate().find(hql,new Object[]{id,username});
-		if(list.size() > 0)
-			return true;
 		return false;
+//		String hql = "From " + tableName + " Where id = ? And inputPersonId In(?,'admin')";
+//		List list = getHibernateTemplate().find(hql,new Object[]{id,username});
+//		if(list.size() > 0)
+//			return true;
+//		return false;
 	}
 }

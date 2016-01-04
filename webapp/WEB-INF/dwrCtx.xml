@@ -570,4 +570,13 @@
 		<property name="sessionFactory" ref="sessionFactory" />
 		<dwr:remote javascript="poolService"></dwr:remote>
 	</bean>
+	<bean id="propertiesServices"
+		class="cn.net.tongfang.framework.util.PropertiesServices">
+	</bean>
+	<bean id="systemSetting"
+		class="cn.net.tongfang.web.service.SystemSetting">
+		<aop:scoped-proxy />
+		<property name="prop" ref="propertiesServices" />
+		<dwr:remote javascript="systemSetting"></dwr:remote>
+	</bean>
 </beans>

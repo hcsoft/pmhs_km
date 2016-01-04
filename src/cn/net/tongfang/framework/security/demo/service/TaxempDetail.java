@@ -23,14 +23,14 @@ public class TaxempDetail implements UserDetails {
     private String taxempname;
     private Integer orgId;
     private String districtId;
-    
+    private String modifyAuthority;
 	private District district;
 	private SamTaxorgcode org;
 	
 	public TaxempDetail(String loginname, String taxempname, String password,
 			District district, SamTaxorgcode org,
 			Integer orgId, String districtId, boolean validFlag,
-			GrantedAuthority[] authorities,Integer isLookAuthority) {
+			GrantedAuthority[] authorities,Integer isLookAuthority,String modifyAuthority) {
 		this.accountNonExpired = true;
 		this.accountNonLocked = true;
 		this.authorities = authorities;
@@ -44,6 +44,7 @@ public class TaxempDetail implements UserDetails {
 		this.district = district;
 		this.org = org;
 		this.isLookAuthority = isLookAuthority;
+		this.modifyAuthority = modifyAuthority;
 	}
 	public String getTaxempname() {
 		return taxempname;
@@ -128,6 +129,12 @@ public class TaxempDetail implements UserDetails {
 	public String toString() {
 		String s = "username: "+username+", password: "+password+", authorities: "+authorities+"";
 		return s;
+	}
+	public String getModifyAuthority() {
+		return modifyAuthority;
+	}
+	public void setModifyAuthority(String modifyAuthority) {
+		this.modifyAuthority = modifyAuthority;
 	}	
 	
 }
