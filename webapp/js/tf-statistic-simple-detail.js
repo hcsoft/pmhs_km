@@ -307,6 +307,17 @@ Ext.tf.SummaryStatisticDetailPanel = Ext.extend(Ext.Panel,{
 		isQryWipeOut = isQryWipeOut ? '1' : '0';
 		var containLowerLevel = Ext.getCmp('containLowerLevel').getValue();
 		containLowerLevel = containLowerLevel ? '1' : '0';
+		
+		/* 按录入时间查询 或是 按建档日期查询*/
+		var queryByInputDate = Ext.getCmp('queryByInputDate').getValue();
+		var queryByBuildDate = Ext.getCmp('queryByBuildDate').getValue();
+		var queryDateType ;	
+		if (queryByBuildDate){
+			queryDateType = "queryByBuildDate";
+		}else{
+			queryDateType = "queryByInputDate";
+		}
+		
 		var orgId = '';
 		if(this.currentNode != null)
 			orgId = this.currentNode.id;
@@ -317,7 +328,8 @@ Ext.tf.SummaryStatisticDetailPanel = Ext.extend(Ext.Panel,{
 			statisticResult : statisticResult,
 			isQryWipeOut : isQryWipeOut,
 			orgId : orgId,
-			containLowerLevel : containLowerLevel
+			containLowerLevel : containLowerLevel,
+			queryDateType:queryDateType
 		};
 		return condition;
 	},
@@ -522,8 +534,22 @@ Ext.tf.SummaryStatisticDetailPanel = Ext.extend(Ext.Panel,{
 				items : [createFieldset('dateRange','dateRange',5,0,'统计查询日期范围',
 						 [createLabel('dateText','dateText',0,3,'起:'),
 						  createDatefield(this.idsArray.startDate,this.idsArray.startDate,20,0,'Y-m-d',120,new Date()),
-						  createLabel('dateTextSeparator','dateTextSeparator',0,43,'止:'),
-						  createDatefield(this.idsArray.endDate,this.idsArray.endDate,20,40,'Y-m-d',120,new Date())],140),
+						  createLabel('dateTextSeparator','dateTextSeparator',0,23,'止:'),
+						  createDatefield(this.idsArray.endDate,this.idsArray.endDate,20,20,'Y-m-d',120,new Date()),
+						  createCheckBox('按录入时间查询',true,'queryByInputDate','queryByInputDate',0,35,20,function(obj,ischecked){
+							  if(ischecked){
+								  Ext.getCmp('queryByInputDate').setValue(true);
+								  Ext.getCmp('queryByBuildDate').setValue(false);
+							  }
+						  }),
+						  createCheckBox('按建档时间查询',false,'queryByBuildDate','queryByBuildDate',0,51,43,function(obj,ischecked){
+							  if(ischecked){
+								  Ext.getCmp('queryByBuildDate').setValue(true);
+								  Ext.getCmp('queryByInputDate').setValue(false);
+							  }
+						  })
+						  
+						  ],140),
 				 createFieldset('statisticResult','statisticResult',180,0,'统计数据显示',
 						 [createCheckBox('居民健康档案',true,this.idsArray.healthfile,this.idsArray.healthfile,0,0,1,null),
 						  createCheckBox('儿童业务数据',false,this.idsArray.children,this.idsArray.children,110,0,2,null),

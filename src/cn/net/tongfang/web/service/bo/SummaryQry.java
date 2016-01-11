@@ -11,6 +11,15 @@ public class SummaryQry {
 	private String isQryWipeOut;
 	private Integer orgId;
 	private String containLowerLevel;
+	private String queryDateType;
+
+	public String getQueryDateType() {
+		return queryDateType;
+	}
+
+	public void setQueryDateType(String queryDateType) {
+		this.queryDateType = queryDateType;
+	}
 
 	public String getFileNo() {
 		return this.fileNo;

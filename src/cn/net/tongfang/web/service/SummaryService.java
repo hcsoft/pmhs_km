@@ -48,26 +48,52 @@ public class SummaryService extends HibernateDaoSupport {
 		while(district.endsWith("00")){
 			district = district.substring(0,district.length()-2);
 		}
-		if (qry.getContainLowerLevel().equals("0"))
-			str_where = " And A.InputDate >= '"
-					+ CommonConvertUtils.dateToStringWithDelimiter(qry
-							.getStartDate())
-					+ " 00:00:00' And A.InputDate <= '"
-					+ CommonConvertUtils.dateToStringWithDelimiter(qry
-							.getEndDate())
-					+ " 23:59:59' And A.InputPersonID In (Select loginname From sam_taxempcode Where org_id = "
-					+ qry.getOrgId() + " ) ";
-		else if (qry.getContainLowerLevel().equals("1")) {
-			str_where = " And A.InputDate >= '"
-					+ CommonConvertUtils.dateToStringWithDelimiter(qry
-							.getStartDate())
-					+ " 00:00:00' And A.InputDate <= '"
-					+ CommonConvertUtils.dateToStringWithDelimiter(qry
-							.getEndDate())
-					+ " 23:59:59' And A.InputPersonID in (Select loginname From sam_taxempcode Where org_id in "
-					+ " (Select ID From Organization Where DistrictNumber Like "
-					+ " (Select DistrictNumber + '%' From Organization Where ID = "
-					+ qry.getOrgId() + "))) ";
+		
+		if(qry.getQueryDateType().equalsIgnoreCase("queryByInputDate")){
+			if (qry.getContainLowerLevel().equals("0"))
+				str_where = " And A.InputDate >= '"
+						+ CommonConvertUtils.dateToStringWithDelimiter(qry
+								.getStartDate())
+						+ " 00:00:00' And A.InputDate <= '"
+						+ CommonConvertUtils.dateToStringWithDelimiter(qry
+								.getEndDate())
+						+ " 23:59:59' And A.InputPersonID In (Select loginname From sam_taxempcode Where org_id = "
+						+ qry.getOrgId() + " ) ";
+			else if (qry.getContainLowerLevel().equals("1")) {
+				str_where = " And A.InputDate >= '"
+						+ CommonConvertUtils.dateToStringWithDelimiter(qry
+								.getStartDate())
+						+ " 00:00:00' And A.InputDate <= '"
+						+ CommonConvertUtils.dateToStringWithDelimiter(qry
+								.getEndDate())
+						+ " 23:59:59' And A.InputPersonID in (Select loginname From sam_taxempcode Where org_id in "
+						+ " (Select ID From Organization Where DistrictNumber Like "
+						+ " (Select DistrictNumber + '%' From Organization Where ID = "
+						+ qry.getOrgId() + "))) ";
+			}
+		}
+		if(qry.getQueryDateType().equalsIgnoreCase("queryByBuildDate")){
+			if (qry.getContainLowerLevel().equals("0"))
+				str_where = " And A.BuildDate >= '"
+						+ CommonConvertUtils.dateToStringWithDelimiter(qry
+								.getStartDate())
+						+ " 00:00:00' And A.BuildDate <= '"
+						+ CommonConvertUtils.dateToStringWithDelimiter(qry
+								.getEndDate())
+						+ " 23:59:59' And A.InputPersonID In (Select loginname From sam_taxempcode Where org_id = "
+						+ qry.getOrgId() + " ) ";
+			else if (qry.getContainLowerLevel().equals("1")) {
+				str_where = " And A.BuildDate >= '"
+						+ CommonConvertUtils.dateToStringWithDelimiter(qry
+								.getStartDate())
+						+ " 00:00:00' And A.BuildDate <= '"
+						+ CommonConvertUtils.dateToStringWithDelimiter(qry
+								.getEndDate())
+						+ " 23:59:59' And A.InputPersonID in (Select loginname From sam_taxempcode Where org_id in "
+						+ " (Select ID From Organization Where DistrictNumber Like "
+						+ " (Select DistrictNumber + '%' From Organization Where ID = "
+						+ qry.getOrgId() + "))) ";
+			}
 		}
 		query.setParameter(0, user.getUsername());
 		query.setParameter(1, qry.getStatisticType());
@@ -374,13 +400,26 @@ public class SummaryService extends HibernateDaoSupport {
 		query.setParameter(0, user.getUsername());
 		query.setParameter(1, qry.getRules());
 		query.setParameter(2, qry.getQryType());
-		String dateWhere = " A.InputDate >= '"
-				+ CommonConvertUtils.dateToStringWithDelimiter(qry
-						.getStartDate())
-				+ " 00:00:00' And A.InputDate <= '"
-				+ CommonConvertUtils.dateToStringWithDelimiter(qry
-						.getEndDate())
-				+ " 23:59:59' ";
+		String dateWhere = "";		
+	
+		if(qry.getQueryDateType().equalsIgnoreCase("queryByInputDate")){
+			dateWhere = " A.InputDate >= '"
+					+ CommonConvertUtils.dateToStringWithDelimiter(qry
+							.getStartDate())
+					+ " 00:00:00' And A.InputDate <= '"
+					+ CommonConvertUtils.dateToStringWithDelimiter(qry
+							.getEndDate())
+					+ " 23:59:59' ";
+		}
+		if(qry.getQueryDateType().equalsIgnoreCase("queryByBuildDate")){
+			dateWhere = " A.BuildDate >= '"
+					+ CommonConvertUtils.dateToStringWithDelimiter(qry
+							.getStartDate())
+					+ " 00:00:00' And A.BuildDate <= '"
+					+ CommonConvertUtils.dateToStringWithDelimiter(qry
+							.getEndDate())
+					+ " 23:59:59' ";
+		}	
 		query.setParameter(3, dateWhere);
 		query.setParameter(4, qry.getIsQryWipeOut());
 		query.setParameter(5, qry.getDistrictNumber());

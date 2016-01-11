@@ -821,6 +821,42 @@ function openhelp(){
 		
 	}
 }
+function getPersonInofByIdNumber(){
+
+	var id = "/js/app/personal_fileinfo.js";
+	var tab = null;
+    var items = tabPanel.find('id', id);
+    if (items.length > 0) {
+    	tab = items[0];
+    }
+    if (tab) {
+    	tabPanel.setActiveTab(tab);
+    }else{
+    	var autoLoad = {
+    		url : "/autoload.jsp?jsurl=" + id,
+    		scripts : true,
+    		nocache : true,
+    		border : false
+    	};
+    	tab = new App.TabPagePanel({
+    		id : id,
+    		autoLoad : autoLoad,
+    		title : '身份证档案查询',
+    		autoScroll : true,
+    		closable : true,
+    		border : false
+    	});
+    	var p = tabPanel.add(tab);
+    	tabPanel.tabid = id;
+    	tab.jscript=id;
+    	tabPanel.activate(p);
+    }
+
+	
+}
+
+
+
 var tabPanel;
 
 Ext.onReady(function() {

@@ -9,6 +9,13 @@ public class StatisticByDistrictQry {
 	private String qryType;
 	private String districtNumber;
 	private String isQryWipeOut;
+	private String queryDateType;
+	public String getQueryDateType() {
+		return queryDateType;
+	}
+	public void setQueryDateType(String queryDateType) {
+		this.queryDateType = queryDateType;
+	}
 	public Date getStartDate() {
 		return startDate;
 	}

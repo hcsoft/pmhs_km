@@ -237,13 +237,23 @@ Ext.tf.StatisticByDistrict = Ext.extend(Ext.Panel, {
 		
 		var isQryWipeOut = Ext.getCmp('isQryWipeOut').getValue();
 		isQryWipeOut = isQryWipeOut ? '1' : '0';
+		/* 按录入时间查询 或是 按建档日期查询*/
+		var queryByInputDate = Ext.getCmp('queryByInputDate').getValue();
+		var queryByBuildDate = Ext.getCmp('queryByBuildDate').getValue();
+		var queryDateType ;		
+		if (queryByBuildDate){
+			queryDateType = "queryByBuildDate";
+		}else{
+			queryDateType = "queryByInputDate";
+		}
 		var condition = {
 			startDate : startDate,
 			endDate : endDate,
 			rules : rules,
 			qryType : qryType,
 			districtNumber : districtNumber,
-			isQryWipeOut : isQryWipeOut
+			isQryWipeOut : isQryWipeOut,
+			queryDateType :queryDateType
 		};
 		return condition;
 	},
@@ -474,8 +484,22 @@ Ext.tf.StatisticByDistrict = Ext.extend(Ext.Panel, {
 				items : [createFieldset('dateRange','dateRange',5,0,'统计查询日期范围',
 						 [createLabel('dateText','dateText',0,3,'起:'),
 						  createDatefield('district_startDate','district_startDate',20,0,'Y-m-d',120,new Date()),
-						  createLabel('dateTextSeparator','dateTextSeparator',0,43,'止:'),
-						  createDatefield('district_endDate','district_endDate',20,40,'Y-m-d',120,new Date())],140),
+						  createLabel('dateTextSeparator','dateTextSeparator',0,23,'止:'),
+						  createDatefield('district_endDate','district_endDate',20,20,'Y-m-d',120,new Date()),
+						  createCheckBox('按录入时间查询',true,'queryByInputDate','queryByInputDate',0,35,20,function(obj,ischecked){
+							  if(ischecked){
+								  Ext.getCmp('queryByInputDate').setValue(true);
+								  Ext.getCmp('queryByBuildDate').setValue(false);
+							  }
+						  }),
+						  createCheckBox('按建档时间查询',false,'queryByBuildDate','queryByBuildDate',0,51,43,function(obj,ischecked){
+							  if(ischecked){
+								  Ext.getCmp('queryByBuildDate').setValue(true);
+								  Ext.getCmp('queryByInputDate').setValue(false);
+							  }
+						  })
+						  ],140),
+						  
 				createFieldset('statisticRule','statisticRule',175,0,'查询规则',
 						 [createCheckBox('只显示本级数据',true,'statisticMe','statisticMe',0,0,3,function(obj,ischecked){
 							  if(ischecked){

@@ -4539,4 +4539,50 @@ public class ModuleMgr extends HibernateDaoSupport {
 		}
 	}
 	
+	/*  */
+	public List findAllHealthInfo(String idnumber)throws Exception {
+
+		HealthFile h = new HealthFile();
+		PersonalInfo p = new PersonalInfo();
+		List params = new ArrayList();
+		//a.fileno,a.address, a.township,a.village,a.tel,a.buildUnit,a.districtNumber
+		StringBuilder hql = new StringBuilder(
+				" select a.fileNo as fileNo  ,a.address as  address, a.township as township ,"
+				+ "a.village as village,a.tel as tel,a.buildUnit as buildUnit,a.districtNumber as districtNumber,a.name  as name, "
+				+ "b.idnumber  as idnumber, "				
+				+ "a.buildPerson  as buildPerson, "
+				+ "a.doctor  as doctor, "
+				+ "a.buildDate  as buildDate "
+				+ "from HealthFile a, PersonalInfo b ").append(
+				" where a.fileNo = b.fileNo and b.idnumber='")				
+		.append(idnumber).append("'")
+		.append(" order by a.fileNo");
+		System.out.println("hql:::::"+hql.toString());	
+		List list = getHibernateTemplate().find(hql.toString());
+		if(list.size()==1){
+			Object[] o = (Object[])list.get(0);
+			//HealthFile
+			h.setFileNo((String)o[0]);
+			h.setAddress((String)o[1]);
+			h.setTownship((String)o[2]);
+			h.setVillage((String)o[3]);
+			h.setTel((String)o[4]);
+			h.setBuildUnit((String)o[5]);
+			h.setDistrictNumber((String)o[6]);
+			h.setName(((String)o[7]));
+			h.setBuildPerson(((String)o[9]));
+			h.setDoctor(((String)o[10]));
+			h.setBuildDate(((Timestamp)o[11]));
+			//PersonalInfo
+			p.setIdnumber(((String)o[8]));
+			
+		}else{
+			h.setFileNo("0");
+			p.setIdnumber("0");
+		}
+		list.add(h);
+		list.add(p);
+		return list;
+	}
+
 }
